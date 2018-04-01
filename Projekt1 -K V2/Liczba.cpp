@@ -4,6 +4,10 @@
 
 #include "Liczba.h"
 #include <climits>
+#include <iostream>
+#include <math.h>
+#include <algorithm>
+#include <vector>
 using namespace std;
 
 const string maxullstring = to_string(ULLONG_MAX);
@@ -24,10 +28,15 @@ Liczba::Liczba(string napis) {
 
 }
 Liczba::Liczba(unsigned long long int *tablica) {
-
+	this->minus = false;
+	for (int i = 0; i < N; i++) 
+		this->pole[i] = tablica[i];
 }
 Liczba &Liczba::operator=(const Liczba &p) {
-	//return <#initializer#>;
+	this->minus = p.minus;
+	for (int i = 0; i < N; i++)
+		this->pole[i] = p.pole[i];
+	return *this;
 }
 
 ///operatory arytmatyczne
@@ -47,12 +56,12 @@ Liczba operator+(const Liczba &l, const Liczba &p) {
 			tmp.pole[i] = suma;
 		}
 	}
-	else if (!l.minus && p.minus) { //lewa dodatnia, prawa ujemna
+	else if (!l.minus && p.minus) { //lewa dodatnia, prawa minus
 		Liczba pzast = p;
 		pzast.minus = false;
 		tmp = l - p;
 	}
-	else if (l.minus && !p.minus) { //lewa ujemna, prawa dodatnia
+	else if (l.minus && !p.minus) { //lewa minus, prawa dodatnia
 		Liczba lzast = l;
 		lzast.minus = false;
 		tmp = p - l;
@@ -61,33 +70,127 @@ Liczba operator+(const Liczba &l, const Liczba &p) {
 	return tmp;
 }
 Liczba operator-(const Liczba &l, const Liczba &p) {
-	return Liczba();
+	Liczba tmp;
+	unsigned long long tab[N];
+	//cout << "odejm" << endl;
+	if ((!l.minus && !p.minus && l.modul() == p.modul()) || (l.minus && p.minus && l.modul() == p.modul()) || (l.modul() == p.modul() && l.modul() == tmp)) {
+		return tmp;
+	}
+	else if ((!l.minus && !p.minus && l.modul() > p.modul()) || (l.minus && p.minus && l.modul() > p.modul())) {
+		//cout << "++ ml>mp || -- ml>mp" << endl;
+		tmp.minus = l.minus;
+		int c = 0;
+		for (int i = 0; i < N; ++i) {
+			tab[i] = l.pole[i] - p.pole[i] + c;
+			if (l.pole[i] <= p.pole[i] && p.pole[i]!=0) {
+				tab[i] += ULLONG_MAX+1;
+				c = -1;
+			}
+			else
+				c = 0;
+		}
+		for (int i = 0; i < N; ++i) {
+			tmp.pole[i] = tab[i];
+		}
+		return tmp;
+	}
+	else if (!l.minus && !p.minus && l.modul() < p.modul()) {
+		//cout << "++, ml < mp" << endl;
+		tmp = p - l;
+		tmp.minus = true;
+		return tmp;
+	}
+	else if (l.minus && p.minus && l.modul() < p.modul()) {
+		//cout << "-- ml<mp" << endl;
+		Liczba pzast = p;
+		pzast.minus = false;
+		tmp = pzast + l;
+		tmp.minus = false;
+		return tmp;
+	}
+	else if (l.minus && !p.minus) {
+		//cout << "-+" << endl;
+		Liczba lzast = l;
+		lzast.minus = false;
+		tmp = lzast + p;
+		tmp.minus = true;
+		return tmp;
+	}
+	else if (!l.minus && p.minus) {
+		//cout << "+-" << endl;
+		Liczba pzast = p;
+		pzast.minus = false;
+		tmp = l + pzast;
+		return tmp;
+	}
 }
 Liczba operator*(const Liczba &l, const Liczba &p) {
 	return Liczba();
 }
 Liczba operator/(const Liczba &l, const Liczba &p) {
-	return Liczba();
+	Liczba tmp;
+	vector <unsigned long long> tab;
+	Liczba dzielnik = p.modul();
+	Liczba dzielna = l.modul();
+	if (dzielnik == tmp) {
+		cout << "Nie mozna dzielic przez 0!!!!!" << endl;
+		return tmp;
+	}
+	if (l.liczbaZnaczacych() < p.liczbaZnaczacych())
+		return tmp;
+	dzielnik = dzielnik << (dzielna.liczbaZnaczacych() - dzielnik.liczbaZnaczacych());
+	int iter = dzielna.liczbaZnaczacych() - 1;
+	unsigned long long ilerazy;
+	while (true) {
+		if (dzielna > dzielnik || dzielna == dzielnik) {
+			ilerazy = dzielna.pole[iter] / dzielnik.pole[iter];
+			tab.push_back(ilerazy);
+			dzielna = dzielna - dzielnik;
+			dzielnik = dzielnik >> 1;
+		}
+		else {
+			tab.push_back(0);
+			dzielnik = dzielnik >> 1;
+		}
+		iter--;
+		if (dzielnik < p.modul())
+			break;
+	}
+	reverse(tab.begin(), tab.end());
+	for (int i = 0; i < tab.size(); i++) {
+		tmp.pole[i] = tab[i];
+	}
+	/////////
+	if (l.minus != p.minus)
+		tmp.minus = true;
+	else
+		tmp.minus = false;
+	return tmp;
 }
 
 ///operatory porownywania
 bool operator>(const Liczba &l, const Liczba &p) {
 	if (l.minus && !p.minus)
-		return  false;
+		return false;
+
 	for (int i = N - 1; i >= 0; i--) {
-		if (l.pole[i]<p.pole[i])
+		if (l.pole[i] > p.pole[i])
+			return true;
+		else if (l.pole[i] < p.pole[i])
 			return false;
 	}
-	return true;
+	return false;
 }
 bool operator<(const Liczba &l, const Liczba &p) {
 	if (!l.minus && p.minus)
-		return  false;
+		return false;
 	for (int i = N - 1; i >= 0; i--) {
-		if (l.pole[i]>p.pole[i])
+		if (l.pole[i] < p.pole[i])
+			return true;
+		else if (l.pole[i] > p.pole[i])
 			return false;
 	}
-	return true;
+	return false;
 }
 bool operator==(const Liczba &l, const Liczba &p) {
 	if (l.minus != p.minus) return false;
@@ -98,14 +201,44 @@ bool operator==(const Liczba &l, const Liczba &p) {
 	return true;
 }
 ostream &operator<<(ostream &out, const Liczba &p) {
-	/*for(int i=N-1; i>=0; i--){
+	if (p.minus)
+		out << "- ";
+	else
+		out << "+ ";
+	for(int i=N-1; i>=0; i--){
 	out << to_string(p.pole[i]) << " ";
-	}*/
-	out << p.pole[1] << " " << p.pole[0];
+	}
+	//out << p.pole[1] << " " << p.pole[0];
 	return  out;
 }
-Liczba Liczba::modul() {
+Liczba operator<<(const Liczba & l, int ilosc)
+{
+	Liczba tmp;
+	for (int i = N - 1 - ilosc; i >= 0; i--) {
+		tmp.pole[i + ilosc] = l.pole[i];
+	}
+	return tmp;
+}
+Liczba operator >> (const Liczba & l, int ilosc)
+{
+	Liczba tmp;
+	for (int i = 0; i < N - ilosc; i++) {
+		tmp.pole[i] = l.pole[i + ilosc];
+	}
+	return tmp;
+}
+Liczba Liczba::modul()  const{
 	Liczba tmp = *this;
 	tmp.minus = false;
 	return  tmp;
+}
+
+int Liczba::liczbaZnaczacych() const
+{
+	int ilosc = 0;
+	for (int i = N - 1; i >= 0; i--, ilosc++) {
+		if (this->pole[i] != 0)
+			break;
+	}
+	return N - ilosc;
 }

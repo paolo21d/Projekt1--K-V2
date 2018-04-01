@@ -4,8 +4,8 @@
 
 #ifndef KRZYSIEK_LICZBA_H
 #define KRZYSIEK_LICZBA_H
-#define N 20
-
+#define N 4
+#include <iostream>
 #include <string>
 
 class Liczba {
@@ -19,7 +19,7 @@ public:
 	Liczba(unsigned long long tablica[N]);
 	Liczba &operator=(const Liczba &p);
 
-	Liczba modul();
+	Liczba modul() const;
 
 	friend Liczba operator+(const Liczba &l, const Liczba &p);
 	friend Liczba operator-(const Liczba &l, const Liczba &p);
@@ -31,6 +31,10 @@ public:
 	friend bool operator==(const Liczba &l, const Liczba &p);
 
 	friend std::ostream &operator<<(std::ostream &out, const Liczba &p);
+
+	friend Liczba operator<< (const Liczba &l, int ilosc);
+	friend Liczba operator>> (const Liczba &l, int ilosc);
+	int liczbaZnaczacych() const;
 };
 
 
