@@ -24,9 +24,7 @@ Liczba::Liczba(long long int w) {
 		pole[i] = 0;
 	pole[0] = static_cast<unsigned long long int>(w);
 }
-Liczba::Liczba(string napis) {
 
-}
 Liczba::Liczba(unsigned long long int *tablica) {
 	this->minus = false;
 	for (int i = 0; i < N; i++) 
@@ -59,12 +57,12 @@ Liczba operator+(const Liczba &l, const Liczba &p) {
 	else if (!l.minus && p.minus) { //lewa dodatnia, prawa minus
 		Liczba pzast = p;
 		pzast.minus = false;
-		tmp = l - p;
+		tmp = l - pzast;
 	}
 	else if (l.minus && !p.minus) { //lewa minus, prawa dodatnia
 		Liczba lzast = l;
 		lzast.minus = false;
-		tmp = p - l;
+		tmp = p - lzast;
 	}
 
 	return tmp;
@@ -125,7 +123,27 @@ Liczba operator-(const Liczba &l, const Liczba &p) {
 	}
 }
 Liczba operator*(const Liczba &l, const Liczba &p) {
-	return Liczba();
+	Liczba tmp;
+	Liczba lkopia = l.modul();
+	if (l.liczbaZnaczacych() + p.liczbaZnaczacych() > N) {
+		cout << "Overload!!" << endl;
+		return	 tmp;
+	}
+	////////
+	for (int i = 0; i < N; i++) {
+		if (p.pole[i] == 0) {
+			continue;
+		}
+		else {
+			tmp = tmp + mnozNaturalne(lkopia << i, p.pole[i]);
+		}
+	}
+
+	if (l.minus != p.minus)
+		tmp.minus = true;
+	else
+		tmp.minus = false;
+	return tmp;
 }
 Liczba operator/(const Liczba &l, const Liczba &p) {
 	Liczba tmp;
@@ -232,7 +250,13 @@ Liczba Liczba::modul()  const{
 	tmp.minus = false;
 	return  tmp;
 }
-
+Liczba mnozNaturalne(const Liczba &l, unsigned long long nat) {
+	Liczba tmp = l;
+	for (int i = 0; i < N; ++i) {
+		tmp.pole[i] *= nat;
+	}
+	return tmp;
+}
 int Liczba::liczbaZnaczacych() const
 {
 	int ilosc = 0;

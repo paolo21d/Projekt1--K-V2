@@ -15,7 +15,6 @@ public:
 public:
 	Liczba();
 	Liczba(long long w);
-	Liczba(std::string napis);
 	Liczba(unsigned long long tablica[N]);
 	Liczba &operator=(const Liczba &p);
 
@@ -34,7 +33,10 @@ public:
 
 	friend Liczba operator<< (const Liczba &l, int ilosc);
 	friend Liczba operator>> (const Liczba &l, int ilosc);
+
+	friend Liczba mnozNaturalne(const Liczba &l, unsigned long long nat);
 	int liczbaZnaczacych() const;
+
 };
 
 
