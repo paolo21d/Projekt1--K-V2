@@ -49,6 +49,7 @@ Liczba wczytajLiczbe() {
 		Liczba test;
 		test.minus = true;
 		if (test == li) return Liczba();
+		li.minus = true;
 	}
 	return li;
 }
@@ -117,8 +118,8 @@ int main() {
 				cout << " > ";
 			else if (l1 < l2)
 				cout << " < ";
-			else
-				cout << " = ";
+			else if (l1 == l2)
+				cout << " == ";
 			cout << l2 << endl;
 		}
 		else if (opcja == 0) { //zamknij program

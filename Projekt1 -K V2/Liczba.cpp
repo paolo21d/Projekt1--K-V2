@@ -188,7 +188,7 @@ Liczba operator/(const Liczba &l, const Liczba &p) {
 
 ///operatory porownywania
 bool operator>(const Liczba &l, const Liczba &p) {
-	if (l.minus && !p.minus)
+	/*if (l.minus && !p.minus)
 		return false;
 
 	for (int i = N - 1; i >= 0; i--) {
@@ -197,10 +197,32 @@ bool operator>(const Liczba &l, const Liczba &p) {
 		else if (l.pole[i] < p.pole[i])
 			return false;
 	}
+	return false;*/
+	if (l.minus && !p.minus)
+		return false;
+	if (!l.minus && p.minus)
+		return true;
+	if (l.minus && p.minus) {
+		for (int i = N - 1; i >= 0; i--) {
+			if (l.pole[i] < p.pole[i])
+				return true;
+			else if (l.pole[i] > p.pole[i] )
+				return false;
+		}
+	}
+	else if (!l.minus && !p.minus) {
+		for (int i = N - 1; i >= 0; i--) {
+			if (l.pole[i] > p.pole[i])
+				return true;
+			else if (l.pole[i] < p.pole[i] )
+				return false;
+		}
+	}
+
 	return false;
 }
 bool operator<(const Liczba &l, const Liczba &p) {
-	if (!l.minus && p.minus)
+	/*if (!l.minus && p.minus)
 		return false;
 	for (int i = N - 1; i >= 0; i--) {
 		if (l.pole[i] < p.pole[i])
@@ -208,6 +230,28 @@ bool operator<(const Liczba &l, const Liczba &p) {
 		else if (l.pole[i] > p.pole[i])
 			return false;
 	}
+	return false;*/
+	if (!l.minus && p.minus)
+		return false;
+	if (l.minus && !p.minus)
+		return true;
+	if (l.minus && p.minus) { //obie ujemne
+		for (int i = N - 1; i >= 0; i--) {
+			if (l.pole[i] > p.pole[i])
+				return true;
+			else if (l.pole[i] < p.pole[i] )
+				return false;
+		}
+	}
+	else if (!l.minus && !p.minus) {//obie dodatnie
+		for (int i = N - 1; i >= 0; i--) {
+			if (l.pole[i] < p.pole[i] )
+				return true;
+			else if (l.pole[i] > p.pole[i] )
+				return false;
+		}
+	}
+
 	return false;
 }
 bool operator==(const Liczba &l, const Liczba &p) {
